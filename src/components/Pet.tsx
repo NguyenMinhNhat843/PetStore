@@ -1,12 +1,12 @@
 import { Badge, Button, Card, Group, Image, Select, Text } from "@mantine/core";
-import { useState } from "react";
+import { useEffect } from "react";
 import {
   components,
   PathsPetFindByStatusGetParametersQueryStatus as PetStatus,
 } from "../type/schema.d";
 import { $api } from "../api/client";
-import { useContextPet } from "../context/PetContext";
 import { Link } from "@tanstack/react-router";
+import { useContextPet } from "../context/PetContext";
 
 function isValidUrl(url?: string) {
   if (!url) return false;
@@ -19,10 +19,22 @@ function isValidUrl(url?: string) {
 }
 
 export default function Pet() {
-  const { petId } = useContextPet();
-  const [status, setStatus] = useState<PetStatus>(PetStatus.available);
+  const { state, dispatch } = useContextPet();
+  const { pets, searchParams } = state;
+  const { status, petId } = searchParams;
 
-  const { data, error, isLoading } = petId
+  const onChangeStatus = (value: PetStatus) => {
+    if (value) {
+      dispatch({
+        type: "SEARCH_PARAMS",
+        payload: {
+          status: value,
+        },
+      });
+    }
+  };
+
+  const query = petId
     ? $api.useQuery(
         "get",
         "/pet/{petId}",
@@ -30,25 +42,34 @@ export default function Pet() {
           params: { path: { petId } },
         },
         {
-          // staleTime: 5 * 60 * 1000,
+          staleTime: 5 * 60 * 1000,
           retry: false,
         }
       )
     : $api.useQuery(
         "get",
         "/pet/findByStatus",
-        { params: { query: { status } } },
+        {
+          params: { query: { status: status ? status : PetStatus.available } },
+        },
         {
           staleTime: 5 * 60 * 1000,
           retry: false,
         }
       );
 
+  const { data, isLoading, error } = query;
+
+  useEffect(() => {
+    if (data) {
+      const normalized = Array.isArray(data) ? data : [data];
+      dispatch({ type: "SET_PETS", payload: normalized });
+    }
+  }, [data, dispatch]);
+
   if (isLoading) return <span>Loading...</span>;
 
   if (error) return <span>Lỗi: {error}</span>;
-
-  const pets = Array.isArray(data) ? data : data ? [data] : [];
 
   return (
     <div>
@@ -62,12 +83,7 @@ export default function Pet() {
         searchable
         data={Object.values(PetStatus)}
         value={status}
-        onChange={(value) => {
-          console.log(value);
-          if (value) {
-            setStatus(value as PetStatus);
-          }
-        }}
+        onChange={(value) => onChangeStatus(value as PetStatus)}
         className="pb-6 w-[300px]"
       />
       <div className="grid grid-cols-5 gap-4 ">

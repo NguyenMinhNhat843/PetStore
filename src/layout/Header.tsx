@@ -1,10 +1,10 @@
 import { Input } from "@mantine/core";
 import { useRef, useState } from "react";
-import { useContextPet } from "../context/PetContext";
 import { Link } from "@tanstack/react-router";
+import { useContextPet } from "../context/PetContext";
 
 export default function Header() {
-  const { setPetId } = useContextPet();
+  const { dispatch } = useContextPet();
   const [input, setInput] = useState<string>("");
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -19,7 +19,13 @@ export default function Header() {
     // debounce 0.5s trước khi gọi setPetId
     typingTimer.current = setTimeout(() => {
       const id = parseInt(value);
-      setPetId(!isNaN(id) ? id : null);
+      // setPetId(!isNaN(id) ? id : null);
+      dispatch({
+        type: "SEARCH_PARAMS",
+        payload: {
+          petId: !isNaN(id) ? id : undefined,
+        },
+      });
     }, 500);
   };
 

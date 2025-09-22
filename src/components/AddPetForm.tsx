@@ -81,7 +81,7 @@ export default function AddPetForm() {
   };
 
   return (
-    <>
+    <main className="">
       <p className="font-bold text-xl pb-4">Thêm 1 pet mới</p>
       <TextInput
         placeholder="name"
@@ -121,6 +121,6 @@ export default function AddPetForm() {
       <Button onClick={onSubmit} className="mt-4">
         Thêm mới
       </Button>
-    </>
+    </main>
   );
 }
