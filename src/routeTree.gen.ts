@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PetIndexRouteImport } from './routes/pet/index'
 import { Route as PetAddPetRouteImport } from './routes/pet/addPet'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PetIndexRoute = PetIndexRouteImport.update({
+  id: '/pet/',
+  path: '/pet/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PetAddPetRoute = PetAddPetRouteImport.update({
@@ -26,27 +32,31 @@ const PetAddPetRoute = PetAddPetRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/pet/addPet': typeof PetAddPetRoute
+  '/pet': typeof PetIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/pet/addPet': typeof PetAddPetRoute
+  '/pet': typeof PetIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/pet/addPet': typeof PetAddPetRoute
+  '/pet/': typeof PetIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/pet/addPet'
+  fullPaths: '/' | '/pet/addPet' | '/pet'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/pet/addPet'
-  id: '__root__' | '/' | '/pet/addPet'
+  to: '/' | '/pet/addPet' | '/pet'
+  id: '__root__' | '/' | '/pet/addPet' | '/pet/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PetAddPetRoute: typeof PetAddPetRoute
+  PetIndexRoute: typeof PetIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pet/': {
+      id: '/pet/'
+      path: '/pet'
+      fullPath: '/pet'
+      preLoaderRoute: typeof PetIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pet/addPet': {
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PetAddPetRoute: PetAddPetRoute,
+  PetIndexRoute: PetIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

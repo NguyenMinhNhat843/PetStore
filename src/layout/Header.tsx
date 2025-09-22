@@ -1,19 +1,26 @@
-import { Button, Input } from "@mantine/core";
-import { useState } from "react";
+import { Input } from "@mantine/core";
+import { useRef, useState } from "react";
 import { useContextPet } from "../context/PetContext";
 import { Link } from "@tanstack/react-router";
 
 export default function Header() {
   const { setPetId } = useContextPet();
   const [input, setInput] = useState<string>("");
+  const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleSearchById = () => {
-    const id = parseInt(input);
-    if (!isNaN(id)) {
-      setPetId(id);
-    } else {
-      setPetId(null);
+  const handleInputChange = (value: string) => {
+    setInput(value);
+
+    // hủy debounce trước đó nếu có
+    if (typingTimer.current) {
+      clearTimeout(typingTimer.current);
     }
+
+    // debounce 0.5s trước khi gọi setPetId
+    typingTimer.current = setTimeout(() => {
+      const id = parseInt(value);
+      setPetId(!isNaN(id) ? id : null);
+    }, 500);
   };
 
   return (
@@ -22,13 +29,12 @@ export default function Header() {
         PetShop
       </Link>
       <Input
-        placeholder="Input component"
+        placeholder="Tìm theo ID Pet"
         w={700}
         size="lg"
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e) => handleInputChange(e.target.value)}
       />
-      <Button onClick={handleSearchById}>Search</Button>
       <div className="text-white/80 font-bold">
         <span>Nguyễn Minh Nhật</span>
       </div>

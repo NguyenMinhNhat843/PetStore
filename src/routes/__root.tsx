@@ -11,10 +11,14 @@ const RootLayout = () => (
   <>
     <MantineProvider theme={theme}>
       <PetContextProvider>
-        <Header />
-        <Container size="lg" className="py-6">
-          <Outlet />
-        </Container>
+        <div className="flex flex-col min-h-screen gap-6">
+          <Header />
+          <main className="flex-1 flex justify-center items-center">
+            <Container size="lg">
+              <Outlet />
+            </Container>
+          </main>
+        </div>
       </PetContextProvider>
     </MantineProvider>
 
